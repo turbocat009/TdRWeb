@@ -1,0 +1,45 @@
+---
+const { text, onPress } = Astro.props;
+---
+
+<button data-on-press={onPress}>{text}</button>
+
+<style>
+    button {
+        width: 250px;
+        height: 77px;
+        border-radius: 16px;
+        font-size: 2rem;
+        font-weight: 600;
+        color: #fff;
+        border: none;
+        background-color: #bf3031;
+        box-shadow: 0 10px 0 #8a2222;
+        cursor: pointer;
+        transition: 0.05s all ease-in-out;
+    }
+
+    button:hover {
+        background-color: #a32a29;
+    }
+
+    button:active {
+        transform: translateY(5px);
+        background-color: #872222;
+        box-shadow: 0 5px 0 #8a2222;
+    }
+</style>
+
+<script>
+    document
+        .querySelectorAll<HTMLButtonElement>("[data-on-press]")
+        .forEach((button) => {
+            button.addEventListener("click", () => {
+                const destination = button.dataset.onPress;
+
+                if (destination) {
+                    window.location.href = destination;
+                }
+            });
+        });
+</script>

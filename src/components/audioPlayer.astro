@@ -1,0 +1,127 @@
+---
+import song from "../audio/Chopin_1.wav";
+---
+
+<div id="content" style="display: none;">
+    <button id="play">
+        <img id="playIMG" alt="Play | Pause button" />
+    </button>
+    <div class="bgScroll">
+        <div id="scroll" class="scroll"></div>
+    </div>
+    <p id="time">88:88</p>
+    <p>/</p>
+    <p id="maxTime">88:88</p>
+</div>
+
+<div id="load">
+    <h3>Loading Audio...</h3>
+</div>
+
+<style>
+    div {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(32, 32, 32);
+        border-radius: 16px;
+        width: 90%;
+        padding: 10px;
+    }
+
+    button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 46px;
+        width: 46px;
+        padding: 0;
+        background-color: rgb(0, 0, 0);
+        border-radius: 100px;
+        border: none;
+        cursor: pointer;
+    }
+
+    img {
+        height: 24px;
+        width: 24px;
+    }
+
+    .bgScroll {
+        display: flex;
+        justify-content: start;
+        width: 75%;
+        margin: 0 15px 0 15px;
+        background-color: #fff;
+        padding: 0;
+    }
+
+    .scroll {
+        margin: 0;
+        padding: 10px 0 10px 0;
+        height: 100%;
+        width: 0%;
+        background-color: #57b8c1;
+    }
+</style>
+
+<script>
+    const maxDurationText = document.getElementById("maxTime");
+    const durationText = document.getElementById("time");
+    const scroll = document.getElementById("scroll");
+    const buttonPlay = document.getElementById("play");
+    const buttonPlayIMG = document.getElementById("playIMG");
+    const content = document.getElementById("content");
+    const loading = document.getElementById("load")
+
+    const audio = new Audio("/audio/Chopin_1.wav");
+
+    let play = false;
+
+    const response = await fetch("/audio/Chopin_1.wav");
+    const data = await response.arrayBuffer();
+
+    const ctx = new AudioContext();
+    const buffer = await ctx.decodeAudioData(data);
+
+    const maxTimeMins = String(Math.floor(buffer.duration / 60)).padStart(2, "0",);
+    const maxTimeSecs = String(Math.round(buffer.duration - Number(maxTimeMins) * 60)).padStart(2, "0");
+
+    let timeMins = String(Math.floor(audio.currentTime / 60)).padStart(2, "0");
+    let timeSecs = String(Math.round(audio.currentTime - Number(timeMins) * 60)).padStart(2, "0");
+    
+    const playImage = buttonPlayIMG as HTMLImageElement;
+
+    maxDurationText.textContent = maxTimeMins + ":" + maxTimeSecs;
+
+    function loop() {
+        if(buffer.duration != 0) {
+            content.style.display = "flex";
+            loading.style.display = "none";
+        }
+
+        timeMins = String(Math.floor(audio.currentTime / 60)).padStart(2, "0");
+        timeSecs = String(Math.round(audio.currentTime - Number(timeMins) * 60)).padStart(2, "0");
+
+        durationText.textContent = timeMins + ":" + timeSecs;
+
+        play ? (playImage.src = "/svg/pause.svg") : (playImage.src = "/svg/play.svg");
+
+        scroll.style.width = `${(audio.currentTime / buffer.duration) * 100}%`;
+
+        if (play) {
+            audio.play();
+        } else {
+            audio.pause();
+        }
+
+        requestAnimationFrame(loop);
+    }
+
+    buttonPlay.onclick = function () {
+        play = !play;
+    };
+
+    loop();
+</script>

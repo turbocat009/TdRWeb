@@ -1,0 +1,57 @@
+---
+import Layout from "../layouts/Layout.astro";
+import OrangeButton from "../components/orangeButton.astro";
+---
+
+<Layout title="Home">
+	<main id="main">
+		<h1>Audio Test</h1>
+		<OrangeButton text="Start Test" onPress="startTest" />
+	</main>
+</Layout>
+
+<script>
+	const main = document.getElementById("main")
+
+	function startTest() {
+		window.location.href = "/test";
+	}
+
+	document.addEventListener("orange-button:press", async (event) => {
+		if (event instanceof CustomEvent && event.detail === "startTest") {
+			main?.classList.add("fade-out");
+			await new Promise(resolve => setTimeout(resolve, 500));
+			startTest();
+		}
+	});
+</script>
+
+<style>
+	main {
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		color: #fff;
+		width: 20vw;
+		height: 30vh;
+		border-radius: 16px;
+		align-items: center;
+		justify-content: space-evenly;
+		background-color: rgb(64, 64, 64);
+	}
+
+	.fade-out {
+		animation: .2s fade-out linear;
+		opacity: 0;
+	}
+
+	@keyframes fade-out {
+		from {
+			opacity: 1;
+		}
+		to {
+			opacity: 0;
+		}
+	}
+</style>

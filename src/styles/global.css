@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+.orange-button {
+	width: 250px;
+	height: 77px;
+	border-radius: 16px;
+	font-size: 2rem;
+	font-weight: 600;
+	color: #fff;
+	border: none;
+	background-color: #ffbd31;
+	box-shadow: 0 10px 0 #a67c1e;
+	cursor: pointer;
+	transition: 0.05s all ease-in-out;
+}
+
+.orange-button:hover {
+	background-color: #e9ab2c;
+}
+
+.orange-button:active {
+	transform: translateY(5px);
+	background-color: #bf8b21;
+	box-shadow: 0 5px 0 #a67c1e;
+}

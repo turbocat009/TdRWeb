@@ -1,0 +1,47 @@
+---
+const { text, onPress } = Astro.props;
+---
+
+<button data-on-press={onPress}>{text}</button>
+
+<style>
+    button {
+        width: 250px;
+        height: 77px;
+        border-radius: 16px;
+        font-size: 2rem;
+        font-weight: 600;
+        color: #fff;
+        border: none;
+        background-color: #ffbd31;
+        box-shadow: 0 10px 0 #a67c1e;
+        cursor: pointer;
+        transition: 0.05s all ease-in-out;
+    }
+
+    button:hover {
+        background-color: #e9ab2c;
+    }
+
+    button:active {
+        transform: translateY(5px);
+        background-color: #bf8b21;
+        box-shadow: 0 5px 0 #a67c1e;
+    }
+</style>
+
+<script>
+    document.querySelectorAll<HTMLButtonElement>('[data-on-press]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const functionName = button.dataset.onPress
+
+            if (functionName) {
+                document.dispatchEvent(
+                    new CustomEvent('orange-button:press', {
+                        detail: functionName,
+                    }),
+                )
+            }
+        })
+    })
+</script>
