@@ -75,11 +75,11 @@ import song from "../audio/Chopin_1.wav";
     const content = document.getElementById("content");
     const loading = document.getElementById("load")
 
-    const audio = new Audio("audio/Chopin_1.wav");
+    const audio = new Audio("/audio/Chopin_1.wav");
 
     let play = false;
 
-    const response = await fetch("audio/Chopin_1.wav");
+    const response = await fetch("/audio/Chopin_1.wav");
     const data = await response.arrayBuffer();
 
     const ctx = new AudioContext();
@@ -106,7 +106,7 @@ import song from "../audio/Chopin_1.wav";
 
         durationText.textContent = timeMins + ":" + timeSecs;
 
-        play ? (playImage.src = "svg/pause.svg") : (playImage.src = "svg/play.svg");
+        play ? (playImage.src = "/svg/pause.svg") : (playImage.src = "/svg/play.svg");
 
         scroll.style.width = `${(audio.currentTime / buffer.duration) * 100}%`;
 
