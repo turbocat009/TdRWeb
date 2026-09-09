@@ -1,25 +1,25 @@
 ---
-import song from "../audio/Chopin_1.wav";
+const { audioFile } = Astro.props;
 ---
 
-<div id="content" style="display: none;">
-    <button id="play">
-        <img id="playIMG" alt="Play | Pause button" />
+<div class="audioDiv" id="content" style="display: none;">
+    <button class="playPause" id="play">
+        <img src="/svg/play.svg" id="playIMG" alt="Play | Pause button" />
     </button>
-    <div class="bgScroll">
-        <div id="scroll" class="scroll"></div>
+    <div class="audioDiv bgScroll">
+        <div id="scroll" class="audioDiv scroll"></div>
     </div>
     <p id="time">88:88</p>
     <p>/</p>
     <p id="maxTime">88:88</p>
 </div>
 
-<div id="load">
+<div class="audioDiv" id="load">
     <h3>Loading Audio...</h3>
 </div>
-
-<style>
-    div {
+<div data-message={audioFile} class="none" id="fileLoc"></div>
+<style is:global>
+    .audioDiv {
         display: flex;
         flex-direction: row;
         justify-content: center;
@@ -30,7 +30,7 @@ import song from "../audio/Chopin_1.wav";
         padding: 10px;
     }
 
-    button {
+    .playPause {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -48,6 +48,10 @@ import song from "../audio/Chopin_1.wav";
         width: 24px;
     }
 
+    .none {
+        display: none;
+    }
+
     .bgScroll {
         display: flex;
         justify-content: start;
@@ -62,7 +66,7 @@ import song from "../audio/Chopin_1.wav";
         padding: 10px 0 10px 0;
         height: 100%;
         width: 0%;
-        background-color: #57b8c1;
+        background-color: #1f9cf1;
     }
 </style>
 
@@ -73,40 +77,53 @@ import song from "../audio/Chopin_1.wav";
     const buttonPlay = document.getElementById("play");
     const buttonPlayIMG = document.getElementById("playIMG");
     const content = document.getElementById("content");
-    const loading = document.getElementById("load")
+    const loading = document.getElementById("load");
+    const fileLoc = document.getElementById("fileLoc");
 
-    const audio = new Audio("/audio/Chopin_1.wav");
+    let audio = new Audio("/audio/Chopin.wav");
+    let response = await fetch("/audio/Chopin.wav");
+
+    if (fileLoc) {
+        audio = new Audio(fileLoc.dataset.message);
+        response = await fetch(fileLoc.dataset.message);
+    }
 
     let play = false;
 
-    const response = await fetch("/audio/Chopin_1.wav");
     const data = await response.arrayBuffer();
 
     const ctx = new AudioContext();
     const buffer = await ctx.decodeAudioData(data);
 
-    const maxTimeMins = String(Math.floor(buffer.duration / 60)).padStart(2, "0",);
-    const maxTimeSecs = String(Math.round(buffer.duration - Number(maxTimeMins) * 60)).padStart(2, "0");
+    const maxTimeMins = String(Math.floor(buffer.duration / 60)).padStart(
+        2,
+        "0",
+    );
+    const maxTimeSecs = String(
+        Math.round(buffer.duration - Number(maxTimeMins) * 60),
+    ).padStart(2, "0");
 
     let timeMins = String(Math.floor(audio.currentTime / 60)).padStart(2, "0");
-    let timeSecs = String(Math.round(audio.currentTime - Number(timeMins) * 60)).padStart(2, "0");
-    
+    let timeSecs = String(
+        Math.round(audio.currentTime - Number(timeMins) * 60),
+    ).padStart(2, "0");
+
     const playImage = buttonPlayIMG as HTMLImageElement;
 
     maxDurationText.textContent = maxTimeMins + ":" + maxTimeSecs;
 
     function loop() {
-        if(buffer.duration != 0) {
+        if (buffer.duration != 0) {
             content.style.display = "flex";
             loading.style.display = "none";
         }
 
         timeMins = String(Math.floor(audio.currentTime / 60)).padStart(2, "0");
-        timeSecs = String(Math.round(audio.currentTime - Number(timeMins) * 60)).padStart(2, "0");
+        timeSecs = String(
+            Math.round(audio.currentTime - Number(timeMins) * 60),
+        ).padStart(2, "0");
 
         durationText.textContent = timeMins + ":" + timeSecs;
-
-        play ? (playImage.src = "/svg/pause.svg") : (playImage.src = "/svg/play.svg");
 
         scroll.style.width = `${(audio.currentTime / buffer.duration) * 100}%`;
 
@@ -121,6 +138,11 @@ import song from "../audio/Chopin_1.wav";
 
     buttonPlay.onclick = function () {
         play = !play;
+        if (play) {
+            playImage.src = "/svg/pause.svg";
+        } else {
+            playImage.src = "/svg/play.svg";
+        }
     };
 
     loop();

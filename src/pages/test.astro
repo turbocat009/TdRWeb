@@ -4,23 +4,293 @@ import RedButton from "../components/redButton.astro";
 import OrangeButton from "../components/orangeButton.astro";
 import GreenButton from "../components/greenButton.astro";
 import AudioPlayer from "../components/audioPlayer.astro";
+
+import { questions } from "../consts/questions";
+
+let audio = 0;
 ---
 
 <Layout title="Test">
-    <div class="counter">1/1</div>
-    <main class="">
-        <h1>1st Audio</h1>
-        <AudioPlayer />
-        <div>
-            <RedButton text="Not Modified" />
-            <OrangeButton text="I don't know" />
-            <GreenButton text="Modified" />
-        </div>
-    </main>
+    <div class="counter" id="counter">
+        {questions[audio].id + "/" + questions.length}
+    </div>
+    <div
+        style="padding: 0, margin: 0"
+        id="containerMain"
+        data-questions={JSON.stringify(questions)}
+    >
+        <main class="mainPart initial-load" id={`mainPart${audio}`}>
+            <h1>{questions[audio].questionTitle}</h1>
+            <p id="title"><strong>Music: </strong>{questions[audio].title}</p>
+            <AudioPlayer audioFile={questions[audio].audio} />
+            <div class="buttons">
+                <RedButton text="Not Modified" onPress="pressRed" />
+                <OrangeButton text="I don't know" onPress="pressOrange" />
+                <GreenButton text="Modified" onPress="pressGreen" />
+            </div>
+        </main>
+    </div>
+    <div class="none" data-message={audio} id="audioValue0"></div>
+    <div class="decorations" id="decorations">
+        {
+            questions.length - audio >= 3 && (
+                <>
+                    <div class="decoration decoration-one" />
+                    <div class="decoration decoration-two" />
+                </>
+            )
+        }
+        {
+            questions.length - audio == 2 && (
+                <div class="decoration decoration-one" />
+            )
+        }
+    </div>
 </Layout>
 
-<style>
-    main {
+<script>
+    const containerMain = document.getElementById("containerMain");
+    const counter = document.getElementById("counter");
+    const decorations = document.getElementById("decorations");
+    const questions = JSON.parse(containerMain?.dataset.questions ?? "[]");
+    let currentAudio = 0;
+    let isTransitioning = false;
+    let result: number[] = [];
+
+    function goResults() {
+        sessionStorage.setItem("results", JSON.stringify(result));
+        window.location.href = "/results";
+    }
+
+    function isOdd(num: number) {
+        return num % 2;
+    }
+
+    function bindAnswerButtons(main: HTMLElement) {
+        main.querySelectorAll<HTMLButtonElement>("[data-on-press]").forEach(
+            (button) => {
+                button.addEventListener("click", () => {
+                    const functionName = button.dataset.onPress;
+
+                    if (!functionName) {
+                        return;
+                    }
+
+                    const buttonName = functionName
+                        .replace("press", "")
+                        .toLowerCase();
+                    document.dispatchEvent(
+                        new CustomEvent(`${buttonName}-button:press`, {
+                            detail: functionName,
+                        }),
+                    );
+                });
+            },
+        );
+    }
+
+    function updateDecorations(currentAudio: number) {
+        if (!decorations) {
+            return;
+        }
+
+        const remainingQuestions = questions.length - currentAudio;
+        decorations.classList.remove("animate");
+        decorations.innerHTML = "";
+
+        if (remainingQuestions >= 3) {
+            decorations.innerHTML = `
+                <div class="decoration decoration-next-one"></div>
+                <div class="decoration decoration-next-two"></div>
+            `;
+        } else if (remainingQuestions === 2) {
+            decorations.innerHTML = `<div class="decoration decoration-next-one"></div>`;
+        }
+    }
+
+    function createNextMain(nextAudio: number) {
+        const currentMain = document.getElementById(`mainPart${currentAudio}`);
+        const nextMain = currentMain?.cloneNode(true) as HTMLElement | null;
+        const nextQuestion = questions[nextAudio];
+
+        if (!nextMain || !nextQuestion || !containerMain) {
+            return null;
+        }
+
+        nextMain.id = `mainPart${nextAudio}`;
+        nextMain.classList.remove(
+            "initial-load",
+            "youLoad",
+            "moveLeft",
+            "moveRight",
+        );
+        nextMain.querySelector("h1")!.textContent = nextQuestion.questionTitle;
+        nextMain.querySelector("#title")!.innerHTML =
+            `<strong>Music: </strong>${nextQuestion.title}`;
+        nextMain
+            .querySelector("#fileLoc")
+            ?.setAttribute("data-message", nextQuestion.audio);
+        bindAnswerButtons(nextMain);
+        containerMain.appendChild(nextMain);
+
+        return nextMain;
+    }
+
+    function saveAnswer(currentAudio: number, selectedAnswer: number) {
+        result[currentAudio] = selectedAnswer;
+    }
+
+    document.addEventListener("orange-button:press", async (event) => {
+        if (event instanceof CustomEvent && event.detail === "pressOrange") {
+            if (isTransitioning) {
+                return;
+            }
+            saveAnswer(currentAudio, 2);
+            isTransitioning = true;
+            const nextAudio = currentAudio + 1;
+            const currentMain = document.getElementById(
+                `mainPart${currentAudio}`,
+            );
+
+            if (nextAudio < questions.length) {
+                const nextMain = createNextMain(nextAudio);
+
+                if (nextMain) {
+                    currentAudio = nextAudio;
+                    counter!.textContent = `${questions[nextAudio].id}/${questions.length}`;
+                    updateDecorations(nextAudio);
+
+                    await new Promise<void>((resolve) => {
+                        requestAnimationFrame(() => {
+                            nextMain.classList.add("youLoad");
+
+                            if (isOdd(nextAudio) == 0) {
+                                currentMain?.classList.add("moveLeft");
+                            } else {
+                                currentMain?.classList.add("moveRight");
+                            }
+
+                            decorations?.classList.add("animate");
+                            resolve();
+                        });
+                    });
+
+                    await new Promise((resolve) => setTimeout(resolve, 500));
+                    currentMain?.remove();
+                    isTransitioning = false;
+                } else {
+                    isTransitioning = false;
+                    goResults();
+                }
+            } else {
+                isTransitioning = false;
+                goResults();
+            }
+        }
+    });
+
+    document.addEventListener("red-button:press", async (event) => {
+        if (event instanceof CustomEvent && event.detail === "pressRed") {
+            if (isTransitioning) {
+                return;
+            }
+            saveAnswer(currentAudio, 1);
+            isTransitioning = true;
+            const nextAudio = currentAudio + 1;
+            const currentMain = document.getElementById(
+                `mainPart${currentAudio}`,
+            );
+
+            if (nextAudio < questions.length) {
+                const nextMain = createNextMain(nextAudio);
+
+                if (nextMain) {
+                    currentAudio = nextAudio;
+                    counter!.textContent = `${questions[nextAudio].id}/${questions.length}`;
+                    updateDecorations(nextAudio);
+
+                    await new Promise<void>((resolve) => {
+                        requestAnimationFrame(() => {
+                            nextMain.classList.add("youLoad");
+
+                            if (isOdd(nextAudio) == 0) {
+                                currentMain?.classList.add("moveLeft");
+                            } else {
+                                currentMain?.classList.add("moveRight");
+                            }
+
+                            decorations?.classList.add("animate");
+                            resolve();
+                        });
+                    });
+
+                    await new Promise((resolve) => setTimeout(resolve, 500));
+                    currentMain?.remove();
+                    isTransitioning = false;
+                } else {
+                    isTransitioning = false;
+                    goResults();
+                }
+            } else {
+                isTransitioning = false;
+                goResults();
+            }
+        }
+    });
+
+    document.addEventListener("green-button:press", async (event) => {
+        if (event instanceof CustomEvent && event.detail === "pressGreen") {
+            if (isTransitioning) {
+                return;
+            }
+            saveAnswer(currentAudio, 0);
+            isTransitioning = true;
+            const nextAudio = currentAudio + 1;
+            const currentMain = document.getElementById(
+                `mainPart${currentAudio}`,
+            );
+
+            if (nextAudio < questions.length) {
+                const nextMain = createNextMain(nextAudio);
+
+                if (nextMain) {
+                    currentAudio = nextAudio;
+                    counter!.textContent = `${questions[nextAudio].id}/${questions.length}`;
+                    updateDecorations(nextAudio);
+
+                    await new Promise<void>((resolve) => {
+                        requestAnimationFrame(() => {
+                            nextMain.classList.add("youLoad");
+
+                            if (isOdd(nextAudio) == 0) {
+                                currentMain?.classList.add("moveLeft");
+                            } else {
+                                currentMain?.classList.add("moveRight");
+                            }
+
+                            decorations?.classList.add("animate");
+                            resolve();
+                        });
+                    });
+
+                    await new Promise((resolve) => setTimeout(resolve, 500));
+                    currentMain?.remove();
+                    isTransitioning = false;
+                } else {
+                    isTransitioning = false;
+                    goResults();
+                }
+            } else {
+                isTransitioning = false;
+                goResults();
+            }
+        }
+    });
+</script>
+
+<style is:global>
+    .mainPart {
+        grid-area: 1 / 1;
         padding: 40px 40px 50px 40px;
         margin: 0;
         display: flex;
@@ -29,14 +299,21 @@ import AudioPlayer from "../components/audioPlayer.astro";
         border-radius: 16px;
         align-items: center;
         background-color: rgb(64, 64, 64);
+        z-index: 10;
+    }
+
+    .initial-load {
         animation: start 2s linear;
+    }
+
+    #containerMain {
+        display: grid;
+        place-items: center;
     }
 
     div {
         display: flex;
         flex-direction: row;
-        gap: 1rem;
-        margin-top: 25px;
     }
 
     .counter {
@@ -50,10 +327,94 @@ import AudioPlayer from "../components/audioPlayer.astro";
         opacity: 1;
         animation: fade-in 1s linear;
         cursor: default;
+        user-select: none;
     }
 
     .none {
         display: none;
+    }
+
+    .decoration {
+        margin: 0;
+        padding: 10px 40px 10px 40px;
+        width: 780px;
+        height: 15px;
+        background: linear-gradient(rgb(32, 32, 32) 0%, rgb(64, 64, 64) 75%);
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+    }
+
+    .decorations {
+        flex-direction: column;
+        margin: 0;
+    }
+
+    .decoration-one {
+        z-index: 2;
+        transform: translateY(-15px);
+        animation: start 2s linear;
+    }
+
+    .decoration-two {
+        z-index: 1;
+        transform: translateY(-30px);
+        animation: start 2s linear;
+    }
+
+    .decoration-next-one {
+        z-index: 2;
+        transform: translateY(-15px);
+    }
+
+    .decoration-next-two {
+        z-index: 1;
+        transform: translateY(-30px);
+    }
+
+    .decorations.animate .decoration-next-one {
+        animation: decorationNextOne 1s linear;
+    }
+
+    .decorations.animate .decoration-next-two {
+        animation: decorationNextTwo 1s linear;
+    }
+
+    .buttons {
+        margin-top: 50px;
+        gap: 1rem;
+    }
+
+    .youLoad {
+        animation: load 1s linear;
+        z-index: 10;
+    }
+
+    h1 {
+        margin-bottom: 10px;
+        margin-top: 10px;
+        cursor: default;
+    }
+
+    #title {
+        background-color: rgb(32, 32, 32);
+        padding: 10px 20px 10px 20px;
+        border-radius: 16px;
+        cursor: default;
+        user-select: text;
+    }
+
+    .moveLeft {
+        animation: changeLeft 1s ease-in-out;
+        z-index: 20;
+    }
+
+    .moveRight {
+        animation: changeRight 1s ease-in-out;
+        z-index: 20;
+    }
+
+    .loading {
+        animation: loadMain 0.5s linear;
     }
 
     @keyframes fade-in {
@@ -69,10 +430,64 @@ import AudioPlayer from "../components/audioPlayer.astro";
 
     @keyframes start {
         from {
-            transform: translateY(-1050px);
+            opacity: 0;
         }
         to {
-            transform: translateY(0px);
+            opacity: 1;
+        }
+    }
+
+    @keyframes changeLeft {
+        from {
+            transform: translate(0px, 0px) rotate(0deg);
+        }
+
+        to {
+            transform: translate(100vw, -100vh) rotate(123deg);
+        }
+    }
+
+    @keyframes changeRight {
+        from {
+            transform: translate(0px, 0px) rotate(0deg);
+        }
+
+        to {
+            transform: translate(-100vw, -100vh) rotate(-123deg);
+        }
+    }
+
+    @keyframes load {
+        from {
+            transform: translateY(30px);
+        }
+
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes decorationNextOne {
+        from {
+            opacity: 1;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(-15px);
+        }
+    }
+
+    @keyframes decorationNextTwo {
+        from {
+            opacity: 0;
+            transform: scale(0.8) translateY(-50px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(-30px);
         }
     }
 </style>

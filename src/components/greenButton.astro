@@ -2,10 +2,10 @@
 const { text, onPress } = Astro.props;
 ---
 
-<button data-on-press={onPress}>{text}</button>
+<button class="buttonGreen" data-on-press={onPress}>{text}</button>
 
-<style>
-    button {
+<style is:global>
+    .buttonGreen {
         width: 250px;
         height: 77px;
         border-radius: 16px;
@@ -19,11 +19,11 @@ const { text, onPress } = Astro.props;
         transition: 0.05s all ease-in-out;
     }
 
-    button:hover {
+    .buttonGreen:hover {
         background-color: #1f7b33;
     }
 
-    button:active {
+    .buttonGreen:active {
         transform: translateY(5px);
         background-color: #175b26;
         box-shadow: 0 5px 0 #175724;
@@ -35,10 +35,14 @@ const { text, onPress } = Astro.props;
         .querySelectorAll<HTMLButtonElement>("[data-on-press]")
         .forEach((button) => {
             button.addEventListener("click", () => {
-                const destination = button.dataset.onPress;
+                const functionName = button.dataset.onPress;
 
-                if (destination) {
-                    window.location.href = destination;
+                if (functionName) {
+                    document.dispatchEvent(
+                        new CustomEvent("green-button:press", {
+                            detail: functionName,
+                        }),
+                    );
                 }
             });
         });
