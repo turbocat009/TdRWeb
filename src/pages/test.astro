@@ -57,6 +57,11 @@ let audio = 0;
     let isTransitioning = false;
     let result: number[] = [];
 
+    const results = sessionStorage.getItem("results");
+    if (results) {
+        window.location.href = "/results";
+    }
+
     function goResults() {
         sessionStorage.setItem("results", JSON.stringify(result));
         window.location.href = "/results";

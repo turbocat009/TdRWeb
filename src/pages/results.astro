@@ -76,6 +76,8 @@ import { questions } from "../consts/questions";
             incorrectField.textContent = `${incorrect} incorrect`;
             notKnownField.textContent = `${notKnown} not known`;
             circle.textContent = `${correct}/${questions.length}`;
+        } else {
+            window.location.href = "/";
         }
 
     }

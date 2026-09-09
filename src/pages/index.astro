@@ -13,6 +13,11 @@ import OrangeButton from "../components/orangeButton.astro";
 <script>
 	const main = document.getElementById("main")
 
+	const results = sessionStorage.getItem("results");
+    if (results) {
+		window.location.href = "/results";
+	}
+
 	function startTest() {
 		window.location.href = "/test";
 	}
