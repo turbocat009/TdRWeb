@@ -495,4 +495,54 @@ let audio = 0;
             transform: scale(1) translateY(-30px);
         }
     }
+
+    @media (max-width: 768px) {
+        #containerMain {
+            width: 100%;
+            padding: 0 12px;
+            box-sizing: border-box;
+        }
+
+        .mainPart {
+            width: min(100%, 420px);
+            box-sizing: border-box;
+            padding: 24px 16px 32px;
+        }
+
+        .mainPart h1 {
+            font-size: 1.6rem;
+            text-align: center;
+        }
+
+        .mainPart #title {
+            max-width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .buttons {
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .mainPart .buttons button {
+            width: min(100%, 250px);
+            height: 60px;
+            font-size: 1.4rem;
+        }
+
+        .decoration {
+            width: calc(100vw - 48px);
+            box-sizing: border-box;
+        }
+
+        .counter {
+            bottom: 12px;
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+    }
 </style>

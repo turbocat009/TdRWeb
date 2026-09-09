@@ -29,7 +29,7 @@ import GreenButton from "../components/greenButton.astro";
         </div>
     </div>
 </main>
-<div class="main" id="thankYou" style="text-align: center; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(32, 32, 32, 0.75); backdrop-filter: blur(5px); z-index: 1000; display: flex; justify-content: center; align-items: center; display: none;">
+<div class="thank-you-overlay" id="thankYou">
     <h1>Thank you for sharing your results!</h1>
 </div>
 
@@ -46,6 +46,7 @@ import GreenButton from "../components/greenButton.astro";
         display: flex;
         justify-content: center;
         align-items: center;
+        overflow: auto;
     }
 
     .modal-hidden {
@@ -120,6 +121,21 @@ import GreenButton from "../components/greenButton.astro";
         color: #fff;
         font-size: 1.5rem;
         text-align: center;
+    }
+
+    .thank-you-overlay {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        box-sizing: border-box;
+        color: #fff;
+        text-align: center;
+        background-color: rgba(32, 32, 32, 0.75);
+        backdrop-filter: blur(5px);
+        z-index: 1000;
     }
 
     .containter1 {
@@ -202,6 +218,49 @@ import GreenButton from "../components/greenButton.astro";
         to {
             transform: translateY(0);
             opacity: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        main {
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        .main {
+            width: min(100%, 420px);
+            height: auto;
+            max-height: calc(100vh - 32px);
+            padding: 24px 16px 32px;
+            box-sizing: border-box;
+        }
+
+        .main h1,
+        .thank-you-overlay h1 {
+            font-size: 1.6rem;
+            text-align: center;
+        }
+
+        .containter1,
+        form {
+            width: 100%;
+        }
+
+        .name,
+        .otherInfo {
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1.1rem;
+        }
+
+        .otherInfo {
+            min-height: 120px;
+        }
+
+        form button {
+            width: min(100%, 250px);
+            height: 60px;
+            font-size: 1.4rem;
         }
     }
 </style>

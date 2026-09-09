@@ -11,10 +11,10 @@ import OrangeButton from "../components/orangeButton.astro";
 </Layout>
 
 <script>
-	const main = document.getElementById("main")
+	const main = document.getElementById("main");
 
 	const results = sessionStorage.getItem("results");
-    if (results) {
+	if (results) {
 		window.location.href = "/results";
 	}
 
@@ -25,7 +25,7 @@ import OrangeButton from "../components/orangeButton.astro";
 	document.addEventListener("orange-button:press", async (event) => {
 		if (event instanceof CustomEvent && event.detail === "startTest") {
 			main?.classList.add("fade-out");
-			await new Promise(resolve => setTimeout(resolve, 500));
+			await new Promise((resolve) => setTimeout(resolve, 500));
 			startTest();
 		}
 	});
@@ -47,7 +47,7 @@ import OrangeButton from "../components/orangeButton.astro";
 	}
 
 	.fade-out {
-		animation: .2s fade-out linear;
+		animation: 0.2s fade-out linear;
 		opacity: 0;
 	}
 
@@ -57,6 +57,13 @@ import OrangeButton from "../components/orangeButton.astro";
 		}
 		to {
 			opacity: 0;
+		}
+	}
+
+	@media (max-width: 768px) {
+		main {
+			width: 85vw;
+			height: 50vh;
 		}
 	}
 </style>

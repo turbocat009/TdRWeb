@@ -99,8 +99,9 @@ import { questions } from "../consts/questions";
         display: flex;
         flex-direction: column;
         color: #fff;
-        width: 30vw;
-        height: 60vh;
+        width: min(30vw, 560px);
+        height: min(60vh, 620px);
+        box-sizing: border-box;
         border-radius: 16px;
         align-items: center;
         justify-content: center;
@@ -178,6 +179,65 @@ import { questions } from "../consts/questions";
         margin: 10px;
         font-size: 1rem;
         font-weight: 600;
+    }
+
+    main button {
+        max-width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        main {
+            width: calc(100vw - 32px);
+            height: auto;
+            min-height: 70vh;
+            max-height: calc(100vh - 32px);
+            padding: 24px 16px 32px;
+            overflow-y: auto;
+        }
+
+        main h1 {
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .containter1 {
+            width: 100%;
+            flex-direction: column;
+            gap: 1rem;
+            padding-bottom: 18px;
+        }
+
+        .container2 {
+            width: 100%;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .container2 > p {
+            margin: 4px;
+            text-align: center;
+        }
+
+        .round {
+            width: 88px;
+            height: 88px;
+        }
+
+        main > div:last-child {
+            width: 100%;
+        }
+
+        h3 {
+            max-width: 100%;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        main button {
+            width: min(100%, 250px);
+            height: 60px;
+            font-size: 1.4rem;
+        }
     }
 
     @keyframes fade-out {

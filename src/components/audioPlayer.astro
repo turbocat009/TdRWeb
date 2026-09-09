@@ -68,6 +68,22 @@ const { audioFile } = Astro.props;
         width: 0%;
         background-color: #1f9cf1;
     }
+
+    @media (max-width: 768px) {
+        .audioDiv {
+            width: calc(100% - 20px);
+            box-sizing: border-box;
+        }
+
+        .bgScroll {
+            width: 65%;
+            margin: 0 8px;
+        }
+
+        .audioDiv p {
+            font-size: 0.8rem;
+        }
+    }
 </style>
 
 <script>
