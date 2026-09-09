@@ -2,11 +2,12 @@
 import Layout from "../layouts/Layout.astro";
 import RedButton from "../components/redButton.astro";
 import GreenButton from "../components/greenButton.astro";
+import Share from "../components/share.astro";
 
 import { questions } from "../consts/questions";
 ---
-
 <Layout title="Home">
+    <Share />
     <main id="main">
         <h1>Your Results</h1>
         <div class="containter1">
@@ -24,7 +25,7 @@ import { questions } from "../consts/questions";
                 It would be very helpfull for us if you shared your results with
                 us
             </h3>
-            <GreenButton text="Share Results" onPress="exit" />
+            <GreenButton text="Share Results" onPress="openShare" />
             <RedButton text="Exit" onPress="exit" class="small-red-button" />
         </div>
     </main>

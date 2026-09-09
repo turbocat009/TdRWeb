@@ -2,7 +2,7 @@
 const { text, onPress, class: className } = Astro.props;
 ---
 
-<button class={className} data-on-press={onPress}>{text}</button>
+<button type="button" class={className} data-on-press={onPress}>{text}</button>
 
 <style>
     button {
@@ -31,19 +31,18 @@ const { text, onPress, class: className } = Astro.props;
 </style>
 
 <script>
-    document
-        .querySelectorAll<HTMLButtonElement>("[data-on-press]")
-        .forEach((button) => {
-            button.addEventListener("click", () => {
-                const functionName = button.dataset.onPress;
+    document.addEventListener("click", (event) => {
+        const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
+            "button[data-on-press]",
+        );
+        const functionName = button?.dataset.onPress;
 
-                if (functionName) {
-                    document.dispatchEvent(
-                        new CustomEvent("red-button:press", {
-                            detail: functionName,
-                        }),
-                    );
-                }
-            });
-        });
+        if (functionName) {
+            document.dispatchEvent(
+                new CustomEvent("red-button:press", {
+                    detail: functionName,
+                }),
+            );
+        }
+    });
 </script>
