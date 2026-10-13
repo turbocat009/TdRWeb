@@ -12,16 +12,16 @@ import GreenButton from "../components/greenButton.astro";
                     class="name"
                     type="text"
                     id="name"
-                    placeholder="Enter your name"
+                    placeholder="E-Mail..."
                 />
                 <textarea
                     class="otherInfo"
                     id="otherInfo"
                     rows="4"
-                    placeholder="Enter other information"></textarea>
-                <GreenButton text="Share Results" onPress="submitShare" />
+                    placeholder="Altra informació rellevant..."></textarea>
+                <GreenButton text="Compartir" onPress="submitShare" />
                 <RedButton
-                    text="Close"
+                    text="Tancar"
                     onPress="closeShare"
                     class="small-red-button"
                 />
@@ -30,7 +30,7 @@ import GreenButton from "../components/greenButton.astro";
     </div>
 </main>
 <div class="thank-you-overlay" id="thankYou">
-    <h1>Thank you for sharing your results!</h1>
+    <h1>Gràcies per compartir els teus resultats!</h1>
 </div>
 
 <style>
@@ -273,7 +273,8 @@ import GreenButton from "../components/greenButton.astro";
     const otherInfoInput = document.getElementById("otherInfo");
 
     async function saveText() {
-        if (!nameInput.value || !otherInfoInput.value) {
+        if (!nameInput.value) {
+            alert("Introdueix el teu mail")
             return false;
         }
 

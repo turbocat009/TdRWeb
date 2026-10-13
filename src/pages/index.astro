@@ -3,10 +3,10 @@ import Layout from "../layouts/Layout.astro";
 import OrangeButton from "../components/orangeButton.astro";
 ---
 
-<Layout title="Home">
+<Layout title="Inici">
 	<main id="main">
-		<h1>Audio Test</h1>
-		<OrangeButton text="Start Test" onPress="startTest" />
+		<h1>Test de fatiga auditiva</h1>
+		<OrangeButton text="Iniciar" onPress="startTest" />
 	</main>
 </Layout>
 
@@ -38,12 +38,17 @@ import OrangeButton from "../components/orangeButton.astro";
 		display: flex;
 		flex-direction: column;
 		color: #fff;
-		width: 20vw;
-		height: 30vh;
+		min-width: 20vw;
+		min-height: 30vh;
 		border-radius: 16px;
 		align-items: center;
 		justify-content: space-evenly;
 		background-color: rgb(64, 64, 64);
+	}
+
+	h1 {
+		text-align: center;
+		padding: 0 2rem;
 	}
 
 	.fade-out {

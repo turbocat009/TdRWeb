@@ -21,12 +21,12 @@ let audio = 0;
     >
         <main class="mainPart initial-load" id={`mainPart${audio}`}>
             <h1>{questions[audio].questionTitle}</h1>
-            <p id="title"><strong>Music: </strong>{questions[audio].title}</p>
+            <p id="title"><strong>Àudio: </strong>{questions[audio].title}</p>
             <AudioPlayer audioFile={questions[audio].audio} />
             <div class="buttons">
-                <RedButton text="Not Modified" onPress="pressRed" />
-                <OrangeButton text="I don't know" onPress="pressOrange" />
-                <GreenButton text="Modified" onPress="pressGreen" />
+                <RedButton text="No Modificat" onPress="pressRed" />
+                <OrangeButton text="No Ho Sé" onPress="pressOrange" />
+                <GreenButton text="Modificat" onPress="pressGreen" />
             </div>
         </main>
     </div>
@@ -132,11 +132,20 @@ let audio = 0;
         nextMain.querySelector("h1")!.textContent = nextQuestion.questionTitle;
         nextMain.querySelector("#title")!.innerHTML =
             `<strong>Music: </strong>${nextQuestion.title}`;
-        nextMain
-            .querySelector("#fileLoc")
-            ?.setAttribute("data-message", nextQuestion.audio);
+        const nextPlayer = nextMain.querySelector<HTMLElement>("[data-audio-player]");
+        if (nextPlayer) {
+            nextPlayer.dataset.audioSrc = nextQuestion.audio;
+        }
         bindAnswerButtons(nextMain);
         containerMain.appendChild(nextMain);
+
+        if (nextPlayer) {
+            document.dispatchEvent(
+                new CustomEvent("audio-player:init", {
+                    detail: { player: nextPlayer },
+                }),
+            );
+        }
 
         return nextMain;
     }
@@ -504,7 +513,7 @@ let audio = 0;
         }
 
         .mainPart {
-            width: min(100%, 420px);
+            width: 90vw;
             box-sizing: border-box;
             padding: 24px 16px 32px;
         }
@@ -534,15 +543,18 @@ let audio = 0;
             font-size: 1.4rem;
         }
 
+        .decorations {
+            width: 90dvw;
+        }
+
         .decoration {
-            width: calc(100vw - 48px);
-            box-sizing: border-box;
+            width: calc(90dvw - 80px);
         }
 
         .counter {
             bottom: 12px;
-            padding: 10px 20px;
-            font-size: 1rem;
+            padding: 15px 30px;
+            font-size: 1.25rem;
         }
     }
 </style>

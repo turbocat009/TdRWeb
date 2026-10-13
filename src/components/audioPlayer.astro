@@ -2,23 +2,34 @@
 const { audioFile } = Astro.props;
 ---
 
-<div class="audioDiv" id="content" style="display: none;">
-    <button class="playPause" id="play">
-        <img src="/svg/play.svg" id="playIMG" alt="Play | Pause button" />
-    </button>
-    <div class="audioDiv bgScroll">
-        <div id="scroll" class="audioDiv scroll"></div>
+<div class="audio-player" data-audio-player data-audio-src={audioFile}>
+    <div class="audioDiv" data-audio-content style="display: none;">
+        <button
+            class="playPause"
+            type="button"
+            aria-label="Reprodueix l'àudio"
+            title="Reprodueix l'àudio"
+        >
+            <img src="/svg/play.svg" alt="" aria-hidden="true" />
+        </button>
+        <div class="bgScroll">
+            <div data-scroll class="scroll"></div>
+        </div>
+        <p data-time>00:00</p>
+        <p aria-hidden="true">/</p>
+        <p data-max-time>00:00</p>
     </div>
-    <p id="time">88:88</p>
-    <p>/</p>
-    <p id="maxTime">88:88</p>
-</div>
 
-<div class="audioDiv" id="load">
-    <h3>Loading Audio...</h3>
+    <div class="audioDiv" data-audio-loading>
+        <h3>Carregant Àudio...</h3>
+    </div>
 </div>
-<div data-message={audioFile} class="none" id="fileLoc"></div>
 <style is:global>
+    .audio-player {
+        width: 100%;
+        min-width: 0;
+    }
+
     .audioDiv {
         display: flex;
         flex-direction: row;
@@ -26,11 +37,14 @@ const { audioFile } = Astro.props;
         align-items: center;
         background-color: rgb(32, 32, 32);
         border-radius: 16px;
-        width: 90%;
+        width: 100%;
+        min-width: 0;
         padding: 10px;
+        box-sizing: border-box;
     }
 
     .playPause {
+        flex: 0 0 46px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -43,123 +57,160 @@ const { audioFile } = Astro.props;
         cursor: pointer;
     }
 
-    img {
+    .audio-player img {
         height: 24px;
         width: 24px;
     }
 
-    .none {
-        display: none;
+    .audio-player p {
+        flex: 0 0 auto;
+        margin: 0 3px;
+        white-space: nowrap;
     }
 
     .bgScroll {
-        display: flex;
-        justify-content: start;
-        width: 75%;
-        margin: 0 15px 0 15px;
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        margin: 0 12px;
         background-color: #fff;
         padding: 0;
     }
 
     .scroll {
-        margin: 0;
-        padding: 10px 0 10px 0;
-        height: 100%;
+        flex: 0 0 auto;
+        height: 8px;
         width: 0%;
         background-color: #1f9cf1;
     }
 
     @media (max-width: 768px) {
         .audioDiv {
-            width: calc(100% - 20px);
-            box-sizing: border-box;
+            padding: 8px;
         }
 
         .bgScroll {
-            width: 65%;
             margin: 0 8px;
         }
 
-        .audioDiv p {
+        .audio-player p {
             font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .bgScroll {
+            margin: 0 5px;
+        }
+
+        .audio-player p {
+            margin: 0 2px;
+            font-size: 0.75rem;
         }
     }
 </style>
 
 <script>
-    const maxDurationText = document.getElementById("maxTime");
-    const durationText = document.getElementById("time");
-    const scroll = document.getElementById("scroll");
-    const buttonPlay = document.getElementById("play");
-    const buttonPlayIMG = document.getElementById("playIMG");
-    const content = document.getElementById("content");
-    const loading = document.getElementById("load");
-    const fileLoc = document.getElementById("fileLoc");
+    type PlayerDetail = { player: HTMLElement };
 
-    let audio = new Audio("/audio/Chopin.wav");
-    let response = await fetch("/audio/Chopin.wav");
+    let activeAudio: HTMLAudioElement | null = null;
 
-    if (fileLoc) {
-        audio = new Audio(fileLoc.dataset.message);
-        response = await fetch(fileLoc.dataset.message);
+    function formatTime(seconds: number) {
+        const minutes = String(Math.floor(seconds / 60)).padStart(2, "0");
+        const remainingSeconds = String(Math.floor(seconds % 60)).padStart(
+            2,
+            "0",
+        );
+        return `${minutes}:${remainingSeconds}`;
     }
 
-    let play = false;
+    function initializePlayer(player: HTMLElement) {
+        const source = player.dataset.audioSrc;
+        const content = player.querySelector<HTMLElement>("[data-audio-content]");
+        const loading = player.querySelector<HTMLElement>("[data-audio-loading]");
+        const durationText = player.querySelector<HTMLElement>("[data-time]");
+        const maxDurationText = player.querySelector<HTMLElement>("[data-max-time]");
+        const scroll = player.querySelector<HTMLElement>("[data-scroll]");
+        const button = player.querySelector<HTMLButtonElement>(".playPause");
+        const playImage = player.querySelector<HTMLImageElement>(".playPause img");
 
-    const data = await response.arrayBuffer();
+        if (!source || !content || !loading || !durationText || !maxDurationText || !scroll || !button || !playImage) {
+            return;
+        }
 
-    const ctx = new AudioContext();
-    const buffer = await ctx.decodeAudioData(data);
+        activeAudio?.pause();
+        const audio = new Audio(source);
+        audio.preload = "metadata";
+        activeAudio = audio;
+        content.style.display = "none";
+        loading.style.display = "flex";
+        scroll.style.width = "0%";
+        durationText.textContent = "00:00";
+        playImage.src = "/svg/play.svg";
+        button.setAttribute("aria-label", "Reprodueix l'àudio");
+        button.title = "Reprodueix l'àudio";
 
-    const maxTimeMins = String(Math.floor(buffer.duration / 60)).padStart(
-        2,
-        "0",
-    );
-    const maxTimeSecs = String(
-        Math.round(buffer.duration - Number(maxTimeMins) * 60),
-    ).padStart(2, "0");
-
-    let timeMins = String(Math.floor(audio.currentTime / 60)).padStart(2, "0");
-    let timeSecs = String(
-        Math.round(audio.currentTime - Number(timeMins) * 60),
-    ).padStart(2, "0");
-
-    const playImage = buttonPlayIMG as HTMLImageElement;
-
-    maxDurationText.textContent = maxTimeMins + ":" + maxTimeSecs;
-
-    function loop() {
-        if (buffer.duration != 0) {
+        audio.addEventListener("loadedmetadata", () => {
+            maxDurationText.textContent = formatTime(audio.duration);
             content.style.display = "flex";
             loading.style.display = "none";
-        }
+        }, { once: true });
 
-        timeMins = String(Math.floor(audio.currentTime / 60)).padStart(2, "0");
-        timeSecs = String(
-            Math.round(audio.currentTime - Number(timeMins) * 60),
-        ).padStart(2, "0");
+        audio.addEventListener("timeupdate", () => {
+            durationText.textContent = formatTime(audio.currentTime);
+            scroll.style.width = audio.duration
+                ? `${(audio.currentTime / audio.duration) * 100}%`
+                : "0%";
+        });
 
-        durationText.textContent = timeMins + ":" + timeSecs;
+        audio.addEventListener("play", () => {
+            playImage.src = "/svg/pause.svg";
+            button.setAttribute("aria-label", "Pausa l'àudio");
+            button.title = "Pausa l'àudio";
+        });
 
-        scroll.style.width = `${(audio.currentTime / buffer.duration) * 100}%`;
+        const showPlayIcon = () => {
+            playImage.src = "/svg/play.svg";
+            button.setAttribute("aria-label", "Reprodueix l'àudio");
+            button.title = "Reprodueix l'àudio";
+        };
 
-        if (play) {
-            audio.play();
-        } else {
-            audio.pause();
-        }
+        audio.addEventListener("pause", showPlayIcon);
+        audio.addEventListener("ended", showPlayIcon);
 
-        requestAnimationFrame(loop);
+        button.onclick = async () => {
+            if (audio.paused) {
+                try {
+                    await audio.play();
+                } catch {
+                    showPlayIcon();
+                }
+            } else {
+                audio.pause();
+            }
+        };
+
+        audio.addEventListener("error", () => {
+            loading.textContent = "No s'ha pogut carregar l'àudio.";
+        }, { once: true });
     }
 
-    buttonPlay.onclick = function () {
-        play = !play;
-        if (play) {
-            playImage.src = "/svg/pause.svg";
-        } else {
-            playImage.src = "/svg/play.svg";
-        }
-    };
+    document.querySelectorAll<HTMLElement>("[data-audio-player]").forEach(initializePlayer);
 
-    loop();
+    document.addEventListener("audio-player:init", (event) => {
+        const player = (event as CustomEvent<PlayerDetail>).detail?.player;
+        if (player) {
+            initializePlayer(player);
+        }
+    });
+
+    for (const eventName of [
+        "red-button:press",
+        "orange-button:press",
+        "green-button:press",
+    ]) {
+        document.addEventListener(eventName, () => {
+            activeAudio?.pause();
+        });
+    }
 </script>
