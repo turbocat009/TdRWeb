@@ -1,0 +1,172 @@
+<!-- Google Fonts & FontAwesome -->
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+/>
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+<button class="button"><i class="fa-solid fa-info"></i></button>
+
+<div class="container" style="display: none;" id="infoModal">
+    <main id="main">
+        <h1>Crèdits</h1>
+        <div class="containter1">
+            <div class="container2">
+                <p
+                >Creat per un TR de l'Institut Pau Vila <br><br> Membres del grup: <br>  -  Persona 1 <br>  -  Persona 2 <br>  -  Persona 3</p>
+            </div>
+        </div>
+        <button>Tanca</button>
+    </main>
+</div>
+
+
+
+<style>
+    :global(html),
+    :global(body) {
+        min-height: 100%;
+        margin: 0;
+        background: #090909;
+        color: #f5f5f5;
+        font-family: "Inter", sans-serif;
+    }
+
+    .button {
+        position: fixed;
+        bottom: 1rem;
+        left: 1rem;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background-color: #222;
+        color: #fff;
+        border: 1px solid #3b3b3b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        transition: background-color 160ms ease, transform 160ms ease;
+        z-index: 10;
+    }
+
+    .button:hover {
+        background-color: #383838;
+        transform: translateY(-2px);
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        box-sizing: border-box;
+        padding: 2rem 1rem;
+        position: absolute;
+        inset: 0;
+        z-index: 100;
+        background-color: rgba(0, 0, 0, 0.75);
+    }
+
+    main {
+        width: min(100%, 28rem);
+        padding: 2.5rem;
+        box-sizing: border-box;
+        border: 1px solid #292929;
+        border-radius: 1.25rem;
+        background: #141414;
+        box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 45%);
+    }
+
+    h1 {
+        margin: 0 0 2rem;
+        color: #fff;
+        font-size: clamp(1.75rem, 5vw, 2.25rem);
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        text-align: center;
+    }
+
+    .containter1 {
+        display: grid;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .container2 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: row;
+        gap: 1rem;
+        padding: 1rem 1.125rem;
+        border: 1px solid #2d2d2d;
+        border-radius: 0.75rem;
+        background: #1b1b1b;
+    }
+
+    .container2 p {
+        margin: 0;
+        color: #a8a8a8;
+        font-size: 0.95rem;
+    }
+
+    .container2 p + p {
+        color: #fff;
+        font-size: 1.125rem;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    main > button {
+        width: 100%;
+        min-height: 3rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid #f5f5f5;
+        border-radius: 0.75rem;
+        background: #f5f5f5;
+        color: #111;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 160ms ease, transform 160ms ease;
+    }
+
+    main > button:hover {
+        background: #dcdcdc;
+        transform: translateY(-1px);
+    }
+
+    .button:focus-visible,
+    main > button:focus-visible {
+        outline: 3px solid #8b8b8b;
+        outline-offset: 3px;
+    }
+
+    @media (max-width: 480px) {
+        main {
+            padding: 1.75rem 1.25rem;
+        }
+    }
+</style>
+
+<script>
+    const infoModal = document.getElementById("infoModal");
+    const infoButton = document.querySelector(".button");
+    const closeButton = infoModal?.querySelector("button");
+
+    infoButton?.addEventListener("click", () => {
+        if (infoModal) {
+            infoModal.style.display = "flex";
+        }
+    });
+
+    closeButton?.addEventListener("click", () => {
+        if (infoModal) {
+            infoModal.style.display = "none";
+        }
+    });
+</script>

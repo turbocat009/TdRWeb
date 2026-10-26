@@ -1,7 +1,10 @@
 ---
 import { ClientRouter } from "astro:transitions";
 
+import Info from "../components/info.astro";
+
 const { title } = Astro.props;
+
 ---
 
 <!doctype html>
@@ -16,6 +19,7 @@ const { title } = Astro.props;
 	</head>
 	<body>
 		<slot />
+		<Info />
 	</body>
 	<ClientRouter />
 </html>
